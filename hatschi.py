@@ -4,7 +4,6 @@ import numpy as np
 from joblib import Parallel, delayed
 
 def _preprocess_data(anmeldungen):
-    anmeldungen = anmeldungen[anmeldungen.Vorname != '']
     anmeldungen.columns = ["date", "first name", "last name", "nickname", "S", "email_unused", "from", "F", "T", "E", "email", "unnamed"]
     anmeldungen = anmeldungen.sort_values("S", ascending=False).reset_index(drop=True)
     anmeldungen["E"] = anmeldungen["E"].astype(np.ubyte)
@@ -15,12 +14,14 @@ def _preprocess_data(anmeldungen):
 
 def import_data_from_url(url):
     anmeldungen = pd.read_csv(url)
+    anmeldungen = anmeldungen[~pd.isna(anmeldungen.Vorname)]
     return _preprocess_data(anmeldungen)
 
 def import_data_from_gdrive(spreadsheet_id, worksheet="Formularantworten 1", service_account_file="service_account.json"):
     gc = gspread.service_account(filename=service_account_file) # type: ignore
     spreadsheet = gc.open_by_key(spreadsheet_id)
     anmeldungen = pd.DataFrame(spreadsheet.worksheet(worksheet).get_all_records())
+    anmeldungen = anmeldungen[anmeldungen.Vorname != '']
     return _preprocess_data(anmeldungen)
         
 
