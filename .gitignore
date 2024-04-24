@@ -1,0 +1,4 @@
+.venv
+service_account.json
+test.ipynb
+__pycache__
