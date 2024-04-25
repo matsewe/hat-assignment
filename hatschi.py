@@ -3,7 +3,8 @@ import numpy as np
 from joblib import Parallel, delayed
 
 def main():
-    anmeldungen = import_data_from_url("https://docs.google.com/spreadsheets/d/e/2PACX-1vRqR0PdzrmOnjo8bfslPsiAnZb7QBYKFm7LsjnU-aOPxb8ue6YMNfeStFHfYu6NBN1uxlMbFORDns5M/pub?gid=459049866&single=true&output=csv")
+    URL = input("Enter the URL of the Google Sheet: ")
+    anmeldungen = import_data_from_url(URL)
     assignments = compute_assignments(anmeldungen, no_teams=6, max_tries=1000000, no_cores=6)
     print_best_assignments(anmeldungen, assignments, no_suggestions=1)
 
