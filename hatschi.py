@@ -1,7 +1,12 @@
-import gspread
 import pandas as pd
 import numpy as np
 from joblib import Parallel, delayed
+
+def main():
+    URL = input("Enter the URL of the Google Sheet: ")
+    anmeldungen = import_data_from_url(URL)
+    assignments = compute_assignments(anmeldungen, no_teams=6, max_tries=1000000, no_cores=6)
+    print_best_assignments(anmeldungen, assignments, no_suggestions=1)
 
 def _preprocess_data(anmeldungen):
     anmeldungen.columns = ["date", "first name", "last name", "nickname", "S", "email_unused", "from", "F", "T", "E", "email", "unnamed"]
@@ -15,13 +20,6 @@ def _preprocess_data(anmeldungen):
 def import_data_from_url(url):
     anmeldungen = pd.read_csv(url)
     anmeldungen = anmeldungen[~pd.isna(anmeldungen.Vorname)]
-    return _preprocess_data(anmeldungen)
-
-def import_data_from_gdrive(spreadsheet_id, worksheet="Formularantworten 1", service_account_file="service_account.json"):
-    gc = gspread.service_account(filename=service_account_file) # type: ignore
-    spreadsheet = gc.open_by_key(spreadsheet_id)
-    anmeldungen = pd.DataFrame(spreadsheet.worksheet(worksheet).get_all_records())
-    anmeldungen = anmeldungen[anmeldungen.Vorname != '']
     return _preprocess_data(anmeldungen)
         
 
@@ -129,3 +127,5 @@ def print_best_assignments(anmeldungen, assignments, no_suggestions = 5):
             print("Mean E: %.1f, T: %.1f, F: %.1f" % (np.mean(players["E"]), np.mean(players["T"]), np.mean(players["F"])), "\n------")
             print(players[["first name", "last name", "S", "from", "E", "T", "F"]].reset_index(drop=True)) #"from",
             print("\n")
+
+main()
